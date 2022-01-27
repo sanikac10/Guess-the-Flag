@@ -11,9 +11,16 @@ struct ContentView: View {
     @State private var scoreTitle = ""
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Monaco", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
-    var scoreCard = 0
+    @State private var scoreCard = 0
     var finalScore = 0
     
+    mutating func score(){
+        if scoreTitle == "Correct" {
+            scoreCard += 1
+            finalScore = scoreCard
+    }
+    }
+
     var body: some View {
         if #available(iOS 15.0, *) {
             ZStack{
@@ -41,7 +48,8 @@ struct ContentView: View {
                                 flagTapped(number)
                                 
                             } label: {
-                                Image(countries[number]).renderingMode(.original)
+                                Image(countries[number])
+                                    .renderingMode(.original)
                                     .clipShape(Capsule())
                                     .shadow(radius: 5)
                                 
@@ -56,7 +64,7 @@ struct ContentView: View {
                     Spacer()
                     Spacer()
                     
-                    Text("Score: ???")
+                    Text("Score: \(scoreCard)")
                         .foregroundColor(.white)
                         .font(.title.bold())
                     
@@ -66,7 +74,7 @@ struct ContentView: View {
             } .alert(scoreTitle, isPresented: $showingScore) {
                 Button("Continue", action: askQuestion)
             } message: {
-                Text("Your score is: ???")
+                Text("Your score is: \(scoreCard)")
             }
         } else {
             // Fallback on earlier versions
@@ -75,8 +83,10 @@ struct ContentView: View {
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            self.scoreCard += 1
         } else {
-            scoreTitle = "Wrong"
+            scoreTitle = "Wrong. That's the flag of \(countries[number])"
+            self.scoreCard -= 1
         }
         showingScore = true
     }
@@ -84,13 +94,7 @@ struct ContentView: View {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
     }
-    mutating func score(){
-        if scoreTitle == "Correct" {
-            scoreCard = scoreCard + 1
-            finalScore = scoreCard
     }
-    }
-}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
